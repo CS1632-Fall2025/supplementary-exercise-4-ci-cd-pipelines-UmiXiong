@@ -19,11 +19,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: 强制清理所有 Maven 缓存
-        run: |
-          rm -rf ~/.m2/repository  # 删除全局依赖缓存
-          rm -rf ./target          # 删除项目本地构建缓存
-
     - name: Set up JDK 11
       uses: actions/setup-java@v3
       with:
