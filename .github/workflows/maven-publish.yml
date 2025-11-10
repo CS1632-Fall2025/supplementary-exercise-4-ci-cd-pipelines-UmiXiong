@@ -29,6 +29,9 @@ jobs:
     - name: Build with Maven
       run: mvn -B package
 
+    - name: Clean Maven cache and build
+      run: mvn clean package  # 清理缓存并构建，确保用最新配置
+
     - name: Publish to GitHub Packages Apache Maven
       run: mvn deploy
       env:
