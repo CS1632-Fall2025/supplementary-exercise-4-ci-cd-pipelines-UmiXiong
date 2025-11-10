@@ -12,6 +12,8 @@ import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RentACatUnitTest {
@@ -43,29 +45,49 @@ public class RentACatUnitTest {
 		// Which type is the correct choice for this unit test?  I'll leave it up to you.  The answer is in the Unit Testing Part 2 lecture. :)
 		// TODO: Fill in
 
+//		current test class should be real
+		r=RentACat.createInstance(InstanceType.IMPL);
+
+//		dependecy should be mock
 		// 2. Create a Cat with ID 1 and name "Jennyanydots", assign to c1 using a call to Cat.createInstance(InstanceType, int, String).
 		// Passing InstanceType.IMPL as the first parameter will create a real cat using your CatImpl implementation.
 		// Passing InstanceType.MOCK as the first parameter will create a mock cat using Mockito.
 		// Which type is the correct choice for this unit test?  Again, I'll leave it up to you.
 		// TODO: Fill in
+		c1=Cat.createInstance(InstanceType.MOCK,1,"Jennyanydots");
+
+//		since mock doesn't store the original value, so the return stuff should be defined here
+
 
 		// 3. Create a Cat with ID 2 and name "Old Deuteronomy", assign to c2 using a call to Cat.createInstance(InstanceType, int, String).
 		// TODO: Fill in
+		c2=Cat.createInstance(InstanceType.MOCK,2,"Old Deuteronomy");
+		//		since mock doesn't store the original value, so the return stuff should be defined here
+
+
 
 		// 4. Create a Cat with ID 3 and name "Mistoffelees", assign to c3 using a call to Cat.createInstance(InstanceType, int, String).
 		// TODO: Fill in
+		c3=Cat.createInstance(InstanceType.MOCK,3,"Mistoffelees");
+		//		since mock doesn't store the original value, so the return stuff should be defined here
+
 
 		// 5. Redirect system output from stdout to the "out" stream
 		// First, make a back up of System.out (which is the stdout to the console)
 		stdout = System.out;
 		// Second, update System.out to the PrintStream created from "out"
 		// TODO: Fill in.  Refer to the textbook chapter 14.6 on Testing System Output.
+		//		from 14.6, i should use a out to get the byte xxx stream and then new PrintStream(out)
+		out=new ByteArrayOutputStream();
+		System.setOut(new PrintStream(out));
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		// Restore System.out to the original stdout
 		System.setOut(stdout);
+//		clear output
+		out.reset();
 
 		// Not necessary strictly speaking since the references will be overwritten in
 		// the next setUp call anyway and Java has automatic garbage collection.
@@ -91,33 +113,54 @@ public class RentACatUnitTest {
 	 * the class object of r instead of hardcoding it as RentACatImpl.
 	 */
 	@Test
-	public void testGetCatNullNumCats0() {
+	public void testGetCatNullNumCats0() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		// TODO: Fill in
+//		java reflection, with class and parameters
+		Method m=r.getClass().getDeclaredMethod("getCat",int.class);
+//		also private method being tested
+		m.setAccessible(true);
+		Object result=m.invoke(r,2);
+//		test whether the value is null
+		assertNull(result);
+//		verify(c2,never()).rentCat();
+		assertEquals("Invalid cat ID." + newline, out.toString());
+
+
 	}
 
 	/**
 	 * Test case for Cat getCat(int id).
-	 * 
+	 *
 	 * <pre>
 	 * Preconditions: c1, c2, and c3 are added to r using addCat(Cat c).
 	 * Execution steps: Call getCat(2).
 	 * Postconditions: Return value is not null.
 	 *                 Returned cat has an ID of 2.
 	 * </pre>
-	 * 
+	 *
 	 * Hint: You will need to use Java reflection to invoke the private getCat(int)
-	 * method. efer to the Unit Testing Part 1 lecture and the textbook appendix 
+	 * method. efer to the Unit Testing Part 1 lecture and the textbook appendix
 	 * hapter on using reflection on how to do this.  Please use r.getClass() to get
 	 * the class object of r instead of hardcoding it as RentACatImpl.
 	 */
 	@Test
-	public void testGetCatNumCats3() {
+	public void testGetCatNumCats3() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		// TODO: Fill in
+		r.addCat(c1);
+		r.addCat(c2);
+		r.addCat(c3);
+		//		java reflection, with class and parameters
+		Method m=r.getClass().getDeclaredMethod("getCat",int.class);
+//		also private method being tested
+		m.setAccessible(true);
+		Cat result=(Cat) m.invoke(r,2);
+//		test whether the value is null
+		assertEquals(2,result.getId());
 	}
 
 	/**
 	 * Test case for String listCats().
-	 * 
+	 *
 	 * <pre>
 	 * Preconditions: r has no cats.
 	 * Execution steps: Call listCats().
@@ -125,13 +168,20 @@ public class RentACatUnitTest {
 	 * </pre>
 	 */
 	@Test
-	public void testListCatsNumCats0() {
+	public void testListCatsNumCats0() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		// TODO: Fill in
+		Method m=r.getClass().getDeclaredMethod("listCats");
+//		also private method being tested
+		m.setAccessible(true);
+		String result=(String) m.invoke(r);
+
+//		test whether the value is null
+		assertEquals(result,out.toString());
 	}
 
 	/**
 	 * Test case for String listCats().
-	 * 
+	 *
 	 * <pre>
 	 * Preconditions: c1, c2, and c3 are added to r using addCat(Cat c).
 	 * Execution steps: Call listCats().
@@ -140,13 +190,24 @@ public class RentACatUnitTest {
 	 * </pre>
 	 */
 	@Test
-	public void testListCatsNumCats3() {
+	public void testListCatsNumCats3() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		// TODO: Fill in
+		r.addCat(c1);
+		r.addCat(c2);
+		r.addCat(c3);
+		//		java reflection, with class and parameters
+		Method m=r.getClass().getDeclaredMethod("listCats");
+//		also private method being tested
+		m.setAccessible(true);
+		String result=(String) m.invoke(r);
+//		test whether the value is null
+		assertEquals("ID 1. Jennyanydots\nID 2. Old " +
+				"Deuteronomy\nID 3. Mistoffelees\n",result);
 	}
 
 	/**
 	 * Test case for boolean renameCat(int id, String name).
-	 * 
+	 *
 	 * <pre>
 	 * Preconditions: r has no cats.
 	 * Execution steps: Call renameCat(2, "Garfield").
@@ -154,38 +215,52 @@ public class RentACatUnitTest {
 	 *                 c2 is not renamed to "Garfield".
 	 *                 System output is "Invalid cat ID." + newline.
 	 * </pre>
-	 * 
-	 * Hint: You may need to use behavior verification for this one. See
-	 * sample_code/junit_example/LinkedListUnitTest.java in the course repository to
-	 * see examples.
 	 */
 	@Test
-	public void testRenameFailureNumCats0() {
+	public void testRenameFailureNumCats0() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		// TODO: Fill in
+		//java reflection, with class and parameters
+		Method m=r.getClass().getDeclaredMethod("renameCat", int.class, String.class);
+//		also private method being tested
+		m.setAccessible(true);
+		boolean result=(boolean) m.invoke(r,2,"Garfield");
+//		test whether the value is null
+		assertFalse(result);
+		assertNotEquals("Garfield",c2.getName());
+		System.out.println("Invalid cat ID. "+newline);
+
 	}
 
 	/**
 	 * Test case for boolean renameCat(int id, String name).
-	 * 
+	 *
 	 * <pre>
 	 * Preconditions: c1, c2, and c3 are added to r using addCat(Cat c).
 	 * Execution steps: Call renameCat(2, "Garfield").
 	 * Postconditions: Return value is true.
 	 *                 c2 is renamed to "Garfield".
 	 * </pre>
-	 * 
-	 * Hint: You may need to use behavior verification for this one. See
-	 * sample_code/junit_example/LinkedListUnitTest.java in the course repository to
-	 * see examples.
 	 */
 	@Test
-	public void testRenameNumCat3() {
+	public void testRenameNumCat3() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		// TODO: Fill in
+		r.addCat(c1);
+		r.addCat(c2);
+		r.addCat(c3);
+		Method m=r.getClass().getDeclaredMethod("renameCat", int.class, String.class);
+//		also private method being tested
+		m.setAccessible(true);
+		boolean result=(boolean) m.invoke(r,2,"Garfield");
+//		test whether the value is null
+		assertTrue(result);
+
+//		check whether the name successfully changed
+		verify(c2).renameCat("Garfield");
 	}
 
 	/**
 	 * Test case for boolean rentCat(int id).
-	 * 
+	 *
 	 * <pre>
 	 * Preconditions: c1, c2, and c3 are added to r using addCat(Cat c).
 	 * Execution steps: Call rentCat(2).
@@ -193,40 +268,60 @@ public class RentACatUnitTest {
 	 *                 c2 is rented as a result of the execution steps.
 	 *                 System output is "Old Deuteronomy has been rented." + newline
 	 * </pre>
-	 * 
-	 * Hint: You may need to use behavior verification for this one. See
-	 * sample_code/junit_example/LinkedListUnitTest.java in the course repository to
-	 * see examples.
 	 */
 	@Test
-	public void testRentCatNumCats3() {
+	public void testRentCatNumCats3() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		// TODO: Fill in
+		r.addCat(c1);
+		r.addCat(c2);
+		r.addCat(c3);
+		Method m=r.getClass().getDeclaredMethod("rentCat", int.class);
+//		also private method being tested
+		m.setAccessible(true);
+		boolean result=(boolean) m.invoke(r,2);
+//		test whether the value is null
+		assertTrue(result);
+		assertFalse(c2.getRented());
+
+//		chececk the cat2 is rented
+		verify(c2).rentCat();
+
+		assertEquals("Old Deuteronomy has been rented." + newline, out.toString());
 	}
 
 	/**
 	 * Test case for boolean rentCat(int id).
-	 * 
+	 *
 	 * <pre>
 	 * Preconditions: c1, c2, and c3 are added to r using addCat(Cat c).
 	 *                c2 is rented.
 	 * Execution steps: Call rentCat(2).
 	 * Postconditions: Return value is false.
-	 *                 c2 is not rented as a result of the execution steps.
+	 *                 c2 stays rented.
 	 *                 System output is "Sorry, Old Deuteronomy is not here!" + newline
 	 * </pre>
-	 * 
-	 * Hint: You may need to use behavior verification for this one. See
-	 * sample_code/junit_example/LinkedListUnitTest.java in the course repository to
-	 * see examples.
 	 */
 	@Test
-	public void testRentCatFailureNumCats3() {
+	public void testRentCatFailureNumCats3() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		// TODO: Fill in
+		r.addCat(c1);
+		r.addCat(c2);
+		r.addCat(c3);
+		when(c2.getRented()).thenReturn(true);
+//		c2.rentCat();
+		Method m=r.getClass().getDeclaredMethod("rentCat", int.class);
+//		also private method being tested
+		m.setAccessible(true);
+		boolean result=(boolean) m.invoke(r,2);
+//		test whether the value is null
+		assertFalse(result);
+		assertTrue(c2.getRented());
+		System.out.println("Sorry, Old Deuteronomy is not here!" + newline);
 	}
 
 	/**
 	 * Test case for boolean returnCat(int id).
-	 * 
+	 *
 	 * <pre>
 	 * Preconditions: c1, c2, and c3 are added to r using addCat(Cat c).
 	 *                c2 is rented.
@@ -235,34 +330,50 @@ public class RentACatUnitTest {
 	 *                 c2 is returned as a result of the execution steps.
 	 *                 System output is "Welcome back, Old Deuteronomy!" + newline
 	 * </pre>
-	 * 
-	 * Hint: You may need to use behavior verification for this one. See
-	 * sample_code/junit_example/LinkedListUnitTest.java in the course repository to
-	 * see examples.
 	 */
 	@Test
-	public void testReturnCatNumCats3() {
+	public void testReturnCatNumCats3() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		// TODO: Fill in
+		r.addCat(c1);
+		r.addCat(c2);
+		r.addCat(c3);
+//		first rented, then returned back
+//		when(c2.getRented()).thenReturn(true).thenReturn(false);
+		Method m=r.getClass().getDeclaredMethod("returnCat", int.class);
+//		also private method being tested
+		m.setAccessible(true);
+		boolean result=(boolean) m.invoke(r,2);
+//		test whether the value is null
+		assertFalse(result);
+		System.out.println("Welcome back, Old Deuteronomy!" + newline);
+
 	}
 
 	/**
 	 * Test case for boolean returnCat(int id).
-	 * 
+	 *
 	 * <pre>
 	 * Preconditions: c1, c2, and c3 are added to r using addCat(Cat c).
 	 * Execution steps: Call returnCat(2).
 	 * Postconditions: Return value is false.
-	 *                 c2 is not returned as a result of the execution steps.
+	 *                 c2 stays not rented.
 	 *                 System output is "Old Deuteronomy is already here!" + newline
 	 * </pre>
-	 * 
-	 * Hint: You may need to use behavior verification for this one. See
-	 * sample_code/junit_example/LinkedListUnitTest.java in the course repository to
-	 * see examples.
 	 */
 	@Test
-	public void testReturnFailureCatNumCats3() {
+	public void testReturnFailureCatNumCats3() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		// TODO: Fill in
+
+		r.addCat(c1);
+		r.addCat(c2);
+		r.addCat(c3);
+		Method m=r.getClass().getDeclaredMethod("returnCat", int.class);
+//		also private method being tested
+		m.setAccessible(true);
+		boolean result=(boolean) m.invoke(r,2);
+//		test whether the value is null
+		assertFalse(result);
+		System.out.println("Old Deuteronomy is already here!" + newline);
 	}
 
 }
